@@ -51,3 +51,7 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "11"
     }
 }
+
+tasks.bootRun {
+    jvmArgs = listOf("-Dreactor.netty.http.server.accessLogEnabled=true")
+}

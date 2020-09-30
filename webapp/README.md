@@ -2,8 +2,27 @@
 
 ## Run with profiles
 
+- Logger prints logs on the console when `local` is one of active profiles. 
+- Logger saves logs to `spring/spring.log` and `netty/access_log.log` files when `prod` is one of active profiles.
+
+### Gradle wrapper
+
+```kt
+// build.gradle.kts
+tasks.bootRun {
+    jvmArgs = listOf("-Dreactor.netty.http.server.accessLogEnabled=true")
+}
 ```
+
+```sh
+# bootRun
 ./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+
+### Jar
+
+```sh
+java -Dreactor.netty.http.server.accessLogEnabled=true -jar webapp-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ```
 
 ## References

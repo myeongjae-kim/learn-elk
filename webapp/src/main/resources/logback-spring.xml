@@ -2,7 +2,9 @@
 <configuration>
     <property resource="application.properties" />
     <contextName>${spring.application.name}</contextName>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+    <!-- Spring log appenders -->
+    <appender name="SPRING_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
             <includeContext>true</includeContext>
             <includeCallerData>true</includeCallerData>
@@ -17,8 +19,8 @@
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>testFile.log</file>
+    <appender name="SPRING_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>spring/spring.log</file>
         <append>true</append>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
             <includeContext>true</includeContext>
@@ -34,27 +36,77 @@
         </encoder>
     </appender>
 
-    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="CONSOLE" />
+    <appender name="ASYNC_SPRING_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SPRING_CONSOLE" />
     </appender>
 
-    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="FILE" />
+    <appender name="ASYNC_SPRING_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SPRING_FILE" />
     </appender>
 
+    <!-- Netty log appenders -->
+    <appender name="NETTY_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
+            <includeContext>true</includeContext>
+            <includeCallerData>true</includeCallerData>
+            <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <thread>thread</thread>
+                <message>message</message>
+                <stackTrace>exception</stackTrace>
+                <mdc>context</mdc>
+            </fieldNames>
+        </encoder>
+    </appender>
+
+    <appender name="NETTY_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>netty/access_log.log</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
+            <includeContext>true</includeContext>
+            <includeCallerData>true</includeCallerData>
+            <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <thread>thread</thread>
+                <message>message</message>
+                <stackTrace>exception</stackTrace>
+                <mdc>context</mdc>
+            </fieldNames>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_NETTY_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="NETTY_CONSOLE" />
+    </appender>
+
+    <appender name="ASYNC_NETTY_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="NETTY_FILE" />
+    </appender>
+
+    <!-- register appenders by profile -->
     <springProfile name="local">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="TRACE">
-            <appender-ref ref="ASYNC_CONSOLE" />
+            <appender-ref ref="ASYNC_SPRING_CONSOLE" />
         </root>
+
+        <logger name="reactor.netty.http.server.AccessLog" additivity="false" level="TRACE">
+            <appender-ref ref="ASYNC_NETTY_CONSOLE"/>
+        </logger>
     </springProfile>
 
     <springProfile name="prod">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="INFO">
-            <appender-ref ref="ASYNC_FILE" />
+            <appender-ref ref="ASYNC_SPRING_FILE" />
         </root>
+
+        <logger name="reactor.netty.http.server.AccessLog" additivity="false" level="INFO">
+            <appender-ref ref="ASYNC_NETTY_FILE"/>
+        </logger>
     </springProfile>
+
 </configuration>

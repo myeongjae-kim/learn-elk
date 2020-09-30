@@ -34,4 +34,4 @@ out/
 .vscode/
 
 ### Log files ###
-.log
+*.log
