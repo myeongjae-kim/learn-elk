@@ -1,5 +1,12 @@
 # Webapp for studying ELK Stack.
 
+## Webapp Spec
+
+- Kotlin
+- Spring Webflux
+  - [Functional Endpoint with Coroutines router DSL](https://docs.spring.io/spring-framework/docs/5.2.9.RELEASE/spring-framework-reference/web-reactive.html#webflux-fn)
+- Logback
+
 ## Run with profiles
 
 - Logger prints logs on the console when `local` is one of active profiles. 
@@ -15,14 +22,31 @@ tasks.bootRun {
 ```
 
 ```sh
-# bootRun
+# For `local` profile, just bootRun. `local` is the default profile.
+./gradlew bootRun
+
+# For `prod` profile.
 ./gradlew bootRun --args='--spring.profiles.active=prod'
 ```
 
 ### Jar
 
 ```sh
+# `local`
+java -Dreactor.netty.http.server.accessLogEnabled=true -jar webapp-0.0.1-SNAPSHOT.jar
+
+# `prod`
 java -Dreactor.netty.http.server.accessLogEnabled=true -jar webapp-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+## Endpoints
+
+```sh
+curl localhost:8080/logs/error
+curl localhost:8080/logs/warn
+curl localhost:8080/logs/info
+curl localhost:8080/logs/debug
+curl localhost:8080/logs/trace
 ```
 
 ## References
