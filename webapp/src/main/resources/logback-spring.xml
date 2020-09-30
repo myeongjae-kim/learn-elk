@@ -17,11 +17,15 @@
         </encoder>
     </appender>
 
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
     <springProfile name="local">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="TRACE">
-            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ASYNC" />
         </root>
     </springProfile>
 
@@ -29,7 +33,7 @@
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="INFO">
-            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ASYNC" />
         </root>
     </springProfile>
 </configuration>
