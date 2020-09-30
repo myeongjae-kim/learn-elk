@@ -17,15 +17,36 @@
         </encoder>
     </appender>
 
-    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>testFile.log</file>
+        <append>true</append>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" >
+            <includeContext>true</includeContext>
+            <includeCallerData>true</includeCallerData>
+            <timestampPattern>yyyy-MM-dd HH:mm:ss.SSS</timestampPattern>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <thread>thread</thread>
+                <message>message</message>
+                <stackTrace>exception</stackTrace>
+                <mdc>context</mdc>
+            </fieldNames>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE" />
     </appender>
 
     <springProfile name="local">
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="TRACE">
-            <appender-ref ref="ASYNC" />
+            <appender-ref ref="ASYNC_CONSOLE" />
         </root>
     </springProfile>
 
@@ -33,7 +54,7 @@
         <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
         <root level="INFO">
-            <appender-ref ref="ASYNC" />
+            <appender-ref ref="ASYNC_FILE" />
         </root>
     </springProfile>
 </configuration>
