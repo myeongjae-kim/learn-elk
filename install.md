@@ -67,7 +67,6 @@ cat access_log.log
 cd
 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.9.2-x86_64.rpm
 sudo rpm -vi filebeat-7.9.2-x86_64.rpm
-cd /etc/filebeat
 
 # filebeat.yml파일 열어서 아래 값들 찾아서 변경
 #
@@ -79,6 +78,13 @@ cd /etc/filebeat
 #     #- /var/log/*.log
 #     - /kiworkshop/spring/spring.log
 #     - /kiworkshop/netty/access_log.log
+#
+# output.elasticsearch:
+#   hosts: ["localhost:9200"]
+#   username: "elastic"
+#   password: "changeme"
+
+cd /etc/filebeat
 sudo vi filebeat.yml # https://www.elastic.co/guide/en/beats/filebeat/current/configuration-filebeat-options.html
 
 sudo filebeat setup -e
