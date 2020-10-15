@@ -8,7 +8,6 @@ sudo yum install firewalld
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 sudo systemctl status firewalld
-firewall-cmd --zone=public --add-port=5601/tcp --permanent
 sudo firewall-cmd --zone=public --add-port=5601/tcp --permanent
 sudo firewall-cmd --reload
 
