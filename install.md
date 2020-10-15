@@ -27,19 +27,7 @@ docker-compose --version
 cd docker-elk/
 
 vi ./elasticsearch/config/elasticsearch.yml # xpack.license.self_generated.type: basic
-sudo docker-compose exec -T elasticsearch bin/elasticsearch-setup-passwords auto --batch
 sudo docker-compose up -d
-
-# Failed to Setup IP tables: Unable to enable SKIP DNAT rule: (iptables failed: iptables –wait -t nat -I DOCKER -i br-24d7aa7869f4 -j RETURN: iptables: No chain/target/match by that name. (exit status 1)) 인 경우 해결책
-# https://forums.docker.com/t/failed-to-setup-ip-tables-unable-to-enable-skip-dnat-rule-iptables-failed-iptables-wait-t-nat-i-docker-i-br-24d7aa7869f4-j-return-iptables-no-chain-target-match-by-that-name-exit-status-1/73080
-systemctl stop docker
-sudo systemctl stop docker
-sudo pkill docker
-sudo iptables -t nat -F
-sudo ifconfig docker0 down
-sudo brctl delbr docker0
-sudo systemctl start docker
-
 
 git clone https://github.com/myeongjae-kim/learn-elk
 cd learn-elk/
@@ -88,4 +76,69 @@ sudo vi filebeat.yml # https://www.elastic.co/guide/en/beats/filebeat/current/co
 
 sudo filebeat setup -e
 sudo service filebeat start
+
+#### 이하부터는 잘 안됨..
+
+cd
+wget https://packages.elastic.co/curator/5/centos/7/Packages/elasticsearch-curator-5.8.1-1.x86_64.rpm
+sudo rpm -U elasticsearch-curator-5.8.1-1.x86_64.rpm
+mkdir .curator
+cd curator
+echo "---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+client:
+  hosts:
+    - 127.0.0.1
+  port: 9200
+  url_prefix:
+  use_ssl: False
+  certificate:
+  client_cert:
+  client_key:
+  ssl_no_validate: False
+  http_auth: 'elastic:changeme'
+  timeout: 30
+  master_only: False
+
+logging:
+  loglevel: INFO
+  logfile:
+  logformat: default
+  blacklist: ['elasticsearch', 'urllib3']" > curator.yml
+
+cd
+echo "---
+actions:
+  1:
+    action: delete_indices
+    description: >-
+      Delete indices older than 30 days (based on index name), for filebeat-
+      prefixed indices. Ignore the error if the filter does not result in an
+      actionable list of indices (ignore_empty_list) and exit cleanly.
+    options:
+      ignore_empty_list: True
+      timeout_override:
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: filebeat-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 0
+      exclude:" > delete_indices_time_base.yml
+
+curator delete_indices_time_base.yml
+
+# Alarm은 Open Distro Alert 설치해서 사용한다. https://woowabros.github.io/experience/2020/01/16/set-elk-with-alarm.html#open-distro-설치하기 참고
+# 현재 Open Distro Alert 최신 버전은 1.10.0  지원하는 ELK 버전은 7.9.1이다
+# .env에서 버전을 7.9.1로 변경하고 Open Distro 다운로드 주소는 https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-security/opendistro_security-1.10.1.0.zip
+# https://opendistro.github.io/for-elasticsearch-docs/docs/install/plugins/
+
 ```
